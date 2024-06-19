@@ -74,6 +74,14 @@ export default function Staking({ address }) {
     }
   }, [stakingTimeData, stakingTimeError]);
 
+  function withdrawStake() {
+    writeContract({
+      address: `0x${smartContractAddress}`,
+      functionName: "withdrawStake",
+      abi: abi,
+    });
+  }
+
   return (
     <div>
       <h1>Staking</h1>
@@ -82,16 +90,19 @@ export default function Staking({ address }) {
         <>
           <p>Your current stake: {currentStake}</p>
           <p>Stake Placed on : {parseTime(stakingTime)}</p>{" "}
+          <button onClick={withdrawStake}>Withdraw Stake</button>
         </>
       ) : (
-        <></>
+        <div>
+          {" "}
+          <input
+            type="number"
+            placeholder="Amount"
+            onChange={(e) => setStakeAmount(parseInt(e.target.value))}
+          />
+          <button onClick={placeStake}>Add Stake</button>
+        </div>
       )}
-      <input
-        type="number"
-        placeholder="Amount"
-        onChange={(e) => setStakeAmount(parseInt(e.target.value))}
-      />
-      <button onClick={placeStake}>Add Stake</button>
     </div>
   );
 }
