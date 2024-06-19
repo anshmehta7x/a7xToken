@@ -49,11 +49,11 @@ contract A7XToken is ERC20 {
         return stakedTokens[_ad];
     }
 
-    function checkStakingTime() public view returns (uint) {
-        if (!isStaking[msg.sender]) {
+    function checkStakingTime(address _ad) public view returns (uint) {
+        if(!isStaking[_ad]) {
             return 0;
         }
-        return stakingTime[msg.sender];
+        return stakingTime[_ad];
     }
 
     function withdrawStake() public {

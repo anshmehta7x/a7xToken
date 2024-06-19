@@ -106,7 +106,13 @@ const abi = [
   {
     type: "function",
     name: "checkStakingTime",
-    inputs: [],
+    inputs: [
+      {
+        name: "_ad",
+        type: "address",
+        internalType: "address",
+      },
+    ],
     outputs: [
       {
         name: "",
