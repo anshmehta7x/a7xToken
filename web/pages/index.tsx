@@ -7,6 +7,7 @@ import { useReadContract, useWriteContract } from "wagmi";
 import { useEffect, useState } from "react";
 
 import abi from "../utils/abi";
+import Staking from "../utils/Staking";
 
 const Home: NextPage = () => {
   const account = useAccount();
@@ -16,12 +17,14 @@ const Home: NextPage = () => {
   const [amount, setAmount] = useState(0);
   const [buyAmount, setBuyAmount] = useState(0);
 
+  const smartContractAddress =
+    process.env.NEXT_PUBLIC_SMART_CONTRACT_ADDRESS.slice(2);
+
   const { data }: any = useReadContract({
-    address: "0xdc64a140aa3e981100a9beca4e685f962f0cf6c9",
+    address: `0x${smartContractAddress}`,
     functionName: "balanceOf",
     abi: abi,
     args: [account.address],
-    refetchInterval: 1000,
   });
 
   useEffect(() => {
@@ -37,8 +40,9 @@ const Home: NextPage = () => {
     }
 
     console.log("Buying tokens");
+    console.log("Buy amount: ", buyAmount);
     writeContract({
-      address: "0xdc64a140aa3e981100a9beca4e685f962f0cf6c9",
+      address: `0x${smartContractAddress}`,
       functionName: "buy",
       abi: abi,
       args: [buyAmount],
@@ -48,7 +52,7 @@ const Home: NextPage = () => {
   function sendTokens() {
     console.log("Sending tokens");
     writeContract({
-      address: "0xdc64a140aa3e981100a9beca4e685f962f0cf6c9",
+      address: `0x${smartContractAddress}`,
       functionName: "transfer",
       abi: abi,
       args: [receiver, amount],
@@ -102,6 +106,7 @@ const Home: NextPage = () => {
             />
             <button onClick={buyTokens}>Buy</button>
           </p>
+          <Staking address={account.address} />
         </div>
       </main>
     </div>
