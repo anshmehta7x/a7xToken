@@ -5,9 +5,9 @@ contract ERC20 {
     string private _name;
     string private _symbol;
     uint8 private _decimals;
-    uint256 private _totalSupply;
+    uint256 internal _totalSupply;
 
-    mapping (address => uint256) private balances;
+    mapping (address => uint256) internal balances;
     mapping (address => mapping (address => uint256)) private allowed;
 
     event Transfer(address indexed from, address indexed to, uint256 value);

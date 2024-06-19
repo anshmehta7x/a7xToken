@@ -6,6 +6,9 @@ import "./ERC20.sol";
 
 contract A7XToken is ERC20 {
     address private owner;
+    mapping(address => uint) private stakedTokens;
+    mapping(address => bool) private isStaking;
+    mapping(address => uint) private stakingTime;
 
     constructor() ERC20("A7XToken", "A7X", 10, 1000000 * 10 ** 10) {
         owner = msg.sender;
@@ -20,4 +23,35 @@ contract A7XToken is ERC20 {
         require(_amount < 1000, "Too High amount");
         _mint(msg.sender, _amount);
     }
+
+    function stake(uint _amount) public {
+        require(_amount > 0, "Invalid amount");
+        require(isStaking[msg.sender] == false, "Already staking");
+        require(balanceOf(msg.sender) >= _amount, "Insufficient balance");
+        stakedTokens[msg.sender] += _amount;
+        balances[msg.sender] -= _amount;
+        isStaking[msg.sender] = true;
+        stakingTime[msg.sender] = block.timestamp;
+    }
+
+    function checkStake() public view returns (uint) {
+        require(isStaking[msg.sender] == true, "Not staking");
+        return stakedTokens[msg.sender];
+    }
+
+    function checkStakingTime() public view returns (uint) {
+        require(isStaking[msg.sender] == true, "Not staking");
+        return stakingTime[msg.sender];
+    }
+
+    function withdrawStake() public {
+        require(isStaking[msg.sender] == true, "Not staking");
+        uint timeStaked = block.timestamp - stakingTime[msg.sender];
+        uint reward = stakedTokens[msg.sender] * timeStaked;
+        _mint(msg.sender,stakedTokens[msg.sender] + reward );
+        stakedTokens[msg.sender] = 0;
+        isStaking[msg.sender] = false;
+        stakingTime[msg.sender] = 0;
+    }
+
 }
