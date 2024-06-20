@@ -7,15 +7,12 @@ export default function Staking({ address }) {
   const smartContractAddress =
     process.env.NEXT_PUBLIC_SMART_CONTRACT_ADDRESS.slice(2);
 
-  // Use useWriteContract hook
   const { writeContract } = useWriteContract();
-
-  // State variables
   const [stakeAmount, setStakeAmount] = useState(0);
   const [currentStake, setCurrentStake] = useState(null);
   const [stakingTime, setStakingTime] = useState(null);
+  const [currentTime, setCurrentTime] = useState(Date.now());
 
-  // Function to place stake
   const placeStake = async () => {
     try {
       const response = await writeContract({
@@ -30,7 +27,6 @@ export default function Staking({ address }) {
     }
   };
 
-  // Fetch the current stake amount
   const {
     data: currentStakeData,
     error: currentStakeError,
@@ -43,7 +39,6 @@ export default function Staking({ address }) {
   });
 
   useEffect(() => {
-    console.log("Stake Data:", currentStakeData);
     if (currentStakeData !== undefined) {
       setCurrentStake(currentStakeData.toString());
       console.log("Current stake:", currentStakeData.toString());
@@ -52,7 +47,6 @@ export default function Staking({ address }) {
     }
   }, [currentStakeData, currentStakeError]);
 
-  // Fetch the current staking time
   const {
     data: stakingTimeData,
     error: stakingTimeError,
@@ -67,8 +61,7 @@ export default function Staking({ address }) {
   useEffect(() => {
     if (stakingTimeData !== undefined) {
       console.log("Staking Time:", stakingTimeData.toString());
-      // Assuming there's a function to handle setting the staking time
-      setStakingTime(stakingTimeData.toString());
+      setStakingTime(parseInt(stakingTimeData.toString()) * 1000); // Convert to milliseconds
     } else if (stakingTimeError) {
       console.error("Error fetching staking time:", stakingTimeError);
     }
@@ -82,6 +75,22 @@ export default function Staking({ address }) {
     });
   }
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const calculateReward = () => {
+    if (currentStake && stakingTime) {
+      const timeStaked = (currentTime - stakingTime) / 1000; // Time staked in seconds
+      return (currentStake * timeStaked) / 100;
+    }
+    return 0;
+  };
+
   return (
     <div>
       <h1>Staking</h1>
@@ -89,12 +98,12 @@ export default function Staking({ address }) {
       {currentStake > 0 ? (
         <>
           <p>Your current stake: {currentStake}</p>
-          <p>Stake Placed on : {parseTime(stakingTime)}</p>{" "}
+          <p>Stake Placed on: {parseTime(stakingTime)}</p>
+          <p>Estimated reward ≈ {calculateReward()}</p>
           <button onClick={withdrawStake}>Withdraw Stake</button>
         </>
       ) : (
         <div>
-          {" "}
           <input
             type="number"
             placeholder="Amount"

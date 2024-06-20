@@ -60,7 +60,7 @@ contract A7XToken is ERC20 {
         require(isStaking[msg.sender], "Not staking");
         
         uint timeStaked = block.timestamp - stakingTime[msg.sender];
-        uint reward = stakedTokens[msg.sender] * timeStaked; // Simple reward logic, consider refining
+        uint reward = stakedTokens[msg.sender] * timeStaked / 100; // Simple reward logic, consider refining
         
         uint totalAmount = stakedTokens[msg.sender] + reward;
         _mint(msg.sender, totalAmount);
