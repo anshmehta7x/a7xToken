@@ -89,7 +89,7 @@ const abi = [
     name: "checkStake",
     inputs: [
       {
-        name: "_ad",
+        name: "_staker",
         type: "address",
         internalType: "address",
       },
@@ -108,7 +108,7 @@ const abi = [
     name: "checkStakingTime",
     inputs: [
       {
-        name: "_ad",
+        name: "_staker",
         type: "address",
         internalType: "address",
       },

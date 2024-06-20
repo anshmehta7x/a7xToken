@@ -6,13 +6,38 @@ import "./ERC20.sol";
 
 contract A7XToken is ERC20 {
     address private owner;
-    mapping(address => uint) private stakedTokens;
-    mapping(address => bool) private isStaking;
-    mapping(address => uint) private stakingTime;
+    
+    struct Stake {
+        uint amount;
+        uint startTime;
+        bool isActive;
+    }
+    
+    mapping(address => Stake) private stakes;
 
     event TokensBought(address indexed buyer, uint amount);
     event TokensStaked(address indexed staker, uint amount);
     event StakeWithdrawn(address indexed staker, uint amount, uint reward);
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the contract owner");
+        _;
+    }
+
+    modifier isStaking(address _staker) {
+        require(stakes[_staker].isActive, "Not staking");
+        _;
+    }
+
+    modifier notStaking(address _staker) {
+        require(!stakes[_staker].isActive, "Already staking");
+        _;
+    }
+
+    modifier hasBalance(address _staker, uint _amount) {
+        require(balanceOf(_staker) >= _amount, "Insufficient balance");
+        _;
+    }
 
     constructor() ERC20("A7XToken", "A7X", 10, 1000000 * 10 ** 10) {
         owner = msg.sender;
@@ -29,46 +54,48 @@ contract A7XToken is ERC20 {
         emit TokensBought(msg.sender, _amount);
     }
 
-    function stake(uint _amount) public {
+    function stake(uint _amount) 
+        public 
+        notStaking(msg.sender) 
+        hasBalance(msg.sender, _amount)
+    {
         require(_amount > 0, "Invalid amount");
-        require(!isStaking[msg.sender], "Already staking");
-        require(balanceOf(msg.sender) >= _amount, "Insufficient balance");
         
-        stakedTokens[msg.sender] += _amount;
+        stakes[msg.sender] = Stake({
+            amount: _amount,
+            startTime: block.timestamp,
+            isActive: true
+        });
         balances[msg.sender] -= _amount;
-        isStaking[msg.sender] = true;
-        stakingTime[msg.sender] = block.timestamp;
 
         emit TokensStaked(msg.sender, _amount);
     }
 
-    function checkStake(address _ad) public view returns (uint) {
-        if(!isStaking[_ad]) {
+    function checkStake(address _staker) public view returns (uint) {
+        if (!stakes[_staker].isActive) {
             return 0;
         }
-        return stakedTokens[_ad];
+        return stakes[_staker].amount;
     }
 
-    function checkStakingTime(address _ad) public view returns (uint) {
-        if(!isStaking[_ad]) {
+    function checkStakingTime(address _staker) public view returns (uint) {
+        if (!stakes[_staker].isActive) {
             return 0;
         }
-        return stakingTime[_ad];
+        return stakes[_staker].startTime;
     }
 
-    function withdrawStake() public {
-        require(isStaking[msg.sender], "Not staking");
+    function withdrawStake() public isStaking(msg.sender) {
+        Stake memory userStake = stakes[msg.sender];
         
-        uint timeStaked = block.timestamp - stakingTime[msg.sender];
-        uint reward = stakedTokens[msg.sender] * timeStaked / 100; // Simple reward logic, consider refining
+        uint timeStaked = block.timestamp - userStake.startTime;
+        uint reward = userStake.amount * timeStaked / 100; // Simple reward logic, consider refining
         
-        uint totalAmount = stakedTokens[msg.sender] + reward;
+        uint totalAmount = userStake.amount + reward;
         _mint(msg.sender, totalAmount);
 
-        emit StakeWithdrawn(msg.sender, stakedTokens[msg.sender], reward);
+        emit StakeWithdrawn(msg.sender, userStake.amount, reward);
 
-        stakedTokens[msg.sender] = 0;
-        isStaking[msg.sender] = false;
-        stakingTime[msg.sender] = 0;
+        delete stakes[msg.sender];
     }
 }
