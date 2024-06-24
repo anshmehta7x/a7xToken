@@ -15,6 +15,8 @@ contract A7XToken is ERC20 {
     
     mapping(address => Stake) private stakes;
 
+    address[] private stakers;
+
     event TokensBought(address indexed buyer, uint amount);
     event TokensStaked(address indexed staker, uint amount);
     event StakeWithdrawn(address indexed staker, uint amount, uint reward);
@@ -67,6 +69,8 @@ contract A7XToken is ERC20 {
             isActive: true
         });
         balances[msg.sender] -= _amount;
+        stakers.push(msg.sender);
+
 
         emit TokensStaked(msg.sender, _amount);
     }
@@ -93,9 +97,34 @@ contract A7XToken is ERC20 {
         
         uint totalAmount = userStake.amount + reward;
         _mint(msg.sender, totalAmount);
+        for (uint i = 0; i < stakers.length; i++) {
+            if (stakers[i] == msg.sender) {
+                stakers[i] = stakers[stakers.length - 1];
+                stakers.pop();
+                break;
+            }
+        }
 
         emit StakeWithdrawn(msg.sender, userStake.amount, reward);
 
         delete stakes[msg.sender];
+    }
+
+    function totalStakedPool() public view returns (uint){
+        uint totalStaked = 0;
+        for (uint i = 0; i < stakers.length; i++) {
+            totalStaked += stakes[stakers[i]].amount;
+        }
+
+        return totalStaked;
+    }
+
+    function allStakes() public view returns (Stake[] memory) {
+        Stake[] memory allStakers = new Stake[](stakers.length);
+        for (uint i = 0; i < stakers.length; i++) {
+            allStakers[i] = stakes[stakers[i]];
+        }
+        
+        return allStakers;
     }
 }

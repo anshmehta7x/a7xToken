@@ -32,6 +32,23 @@ const anvil: Chain = {
   testnet: true,
 };
 
+const xdctestnet: Chain = {
+  id: 51,
+  name: "XDC Apothem Network",
+  nativeCurrency: {
+    name: "TXDC",
+    symbol: "TXDC",
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: { http: ["https://rpc.apothem.network"] },
+  },
+  blockExplorers: {
+    default: { name: "XDC Explorer", url: "https://explorer.apothem.network" },
+  },
+  testnet: true,
+};
+
 const config = getDefaultConfig({
   appName: "RainbowKit App",
   projectId: "YOUR_PROJECT_ID",
@@ -42,6 +59,7 @@ const config = getDefaultConfig({
     arbitrum,
     base,
     anvil,
+    xdctestnet,
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [sepolia] : []),
   ],
   ssr: true,

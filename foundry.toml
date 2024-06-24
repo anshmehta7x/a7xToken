@@ -2,5 +2,10 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+gas_limit = 5000000  # Set a higher gas limit
+
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+
+[rpc_endpoints]
+apothem = "${APOTHEM_RPC_URL}"

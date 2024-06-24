@@ -12,6 +12,7 @@ export default function Staking({ address }) {
   const [currentStake, setCurrentStake] = useState(null);
   const [stakingTime, setStakingTime] = useState(null);
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const [currentStakedPool, setCurrentStakedPool] = useState(0);
 
   const placeStake = async () => {
     try {
@@ -60,7 +61,6 @@ export default function Staking({ address }) {
 
   useEffect(() => {
     if (stakingTimeData !== undefined) {
-      console.log("Staking Time:", stakingTimeData.toString());
       setStakingTime(parseInt(stakingTimeData.toString()) * 1000); // Convert to milliseconds
     } else if (stakingTimeError) {
       console.error("Error fetching staking time:", stakingTimeError);
@@ -91,9 +91,28 @@ export default function Staking({ address }) {
     return 0;
   };
 
+  const {
+    data: currentStakedPoolData,
+    error: currentStakedPoolError,
+    isLoading: isCurrentStakedPoolLoading,
+  } = useReadContract({
+    address: `0x${smartContractAddress}`,
+    functionName: "totalStakedPool",
+    abi: abi,
+  });
+
+  useEffect(() => {
+    if (currentStakedPoolData !== undefined) {
+      setCurrentStakedPool(currentStakedPoolData.toString());
+    } else if (currentStakedPoolError) {
+      console.error("Error fetching staked pool:", currentStakedPoolError);
+    }
+  }, [currentStakedPoolData, currentStakedPoolError]);
+
   return (
     <div>
       <h1>Staking</h1>
+      <p>Current staked pool : {currentStakedPool}</p>
       <p>Stake your tokens to earn more tokens</p>
       {currentStake > 0 ? (
         <>

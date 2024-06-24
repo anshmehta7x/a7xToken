@@ -189,6 +189,19 @@ const abi = [
   },
   {
     type: "function",
+    name: "totalStakedPool",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "totalSupply",
     inputs: [],
     outputs: [
