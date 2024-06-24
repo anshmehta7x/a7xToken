@@ -6,6 +6,36 @@ const abi = [
   },
   {
     type: "function",
+    name: "allStakes",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "tuple[]",
+        internalType: "struct A7XToken.Stake[]",
+        components: [
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "startTime",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "isActive",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "allowance",
     inputs: [
       {
@@ -131,6 +161,19 @@ const abi = [
         name: "",
         type: "uint8",
         internalType: "uint8",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getChainlinkDataFeedLatestAnswer",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "int256",
+        internalType: "int256",
       },
     ],
     stateMutability: "view",

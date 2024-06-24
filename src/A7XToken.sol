@@ -3,9 +3,13 @@
 pragma solidity ^0.8.13;
 
 import "./ERC20.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+ 
 
 contract A7XToken is ERC20 {
     address private owner;
+    AggregatorV3Interface internal dataFeed;
+
     
     struct Stake {
         uint amount;
@@ -43,6 +47,7 @@ contract A7XToken is ERC20 {
 
     constructor() ERC20("A7XToken", "A7X", 10, 1000000 * 10 ** 10) {
         owner = msg.sender;
+        dataFeed = AggregatorV3Interface(0x1b44F3514812d835EB1BDB0acB33d3fA3351Ee43);
     }
 
     function test() public pure returns (string memory) {
@@ -126,5 +131,11 @@ contract A7XToken is ERC20 {
         }
         
         return allStakers;
+    }
+
+    function getChainlinkDataFeedLatestAnswer() public view returns (int) {
+
+        (, int answer, , , ) = dataFeed.latestRoundData();
+        return answer;
     }
 }

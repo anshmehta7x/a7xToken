@@ -16,6 +16,7 @@ const Home: NextPage = () => {
   const [receiver, setReceiver] = useState("");
   const [amount, setAmount] = useState(0);
   const [buyAmount, setBuyAmount] = useState(0);
+  const [formattedPrice, setFormattedPrice] = useState("Loading...");
 
   const smartContractAddress =
     process.env.NEXT_PUBLIC_SMART_CONTRACT_ADDRESS.slice(2);
@@ -26,6 +27,22 @@ const Home: NextPage = () => {
     abi: abi,
     args: [account.address],
   });
+
+  const { data: priceData }: any = useReadContract({
+    address: `0x${smartContractAddress}`,
+    functionName: "getChainlinkDataFeedLatestAnswer",
+    abi: abi,
+    args: [],
+  });
+
+  useEffect(() => {
+    if (priceData) {
+      const price = BigInt(priceData) / BigInt(10 ** 8);
+      setFormattedPrice(price.toString());
+    } else {
+      setFormattedPrice("Loading...");
+    }
+  }, [priceData]);
 
   useEffect(() => {
     if (data) {
@@ -107,6 +124,15 @@ const Home: NextPage = () => {
             <button onClick={buyTokens}>Buy</button>
           </p>
           <Staking address={account.address} />
+          <br></br>
+          <p className={styles.description}>
+            {
+              "Current price of A7XToken in USD (using BTC/USD values for reference), from Chainlink on sepolia network"
+            }
+          </p>
+          <p className={styles.description}>
+            1 A7XToken = {formattedPrice} USD
+          </p>
         </div>
       </main>
     </div>
